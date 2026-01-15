@@ -1,15 +1,45 @@
-import { Pressable, StyleSheet, TextInput, View, Text } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  TextInput,
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { s } from "react-native-size-matters";
+import { s, vs } from "react-native-size-matters";
 import colors from "../theme/colors";
 import { useState } from "react";
-import searchMovies from "../api/omdb";
+import searchMovies, { OmdbSearchItem } from "../api/omdb";
+import MovieCard from "../components/MovieCard";
 
 const HomeScreen = () => {
   const [query, setQuery] = useState("Batman");
+  const [movies, setMovies] = useState<OmdbSearchItem[]>([]);
 
-  const onSubmit = () => {
-    searchMovies(query);
+  const [loader, setLoader] = useState(false);
+  const [error, setError] = useState("");
+
+  const onSubmit = async () => {
+    setLoader(true);
+    setError("");
+
+    try {
+      const res = await searchMovies(query);
+      if (res.Response === "True") {
+        const incomingMovies = res.Search || [];
+        setMovies(incomingMovies);
+      } else {
+        setMovies([]);
+        setError(res.Error || "Failed to fetch movies");
+      }
+    } catch (error) {
+      setError("An unexpected error occurred");
+      setMovies([]);
+    }
+
+    setLoader(false);
   };
 
   return (
@@ -27,6 +57,24 @@ const HomeScreen = () => {
           <Text style={styles.searchButtonText}>Search</Text>
         </Pressable>
       </View>
+      {loader ? (
+        <View
+          style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+        >
+          <ActivityIndicator size={"large"} />
+          <Text style={{ color: colors.textColor, marginTop: vs(4) }}>
+            Loading...
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={movies}
+          renderItem={({ item }) => <MovieCard movie={item} />}
+          keyExtractor={(item, index) => `${item.imdbID}-${index}`}
+          key={`movies-${movies.length}`}
+          numColumns={2}
+        />
+      )}
     </SafeAreaView>
   );
 };
