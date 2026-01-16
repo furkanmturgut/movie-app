@@ -1,12 +1,19 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { use } from "react";
 import { OmdbSearchItem } from "../api/omdb";
 import { s, vs } from "react-native-size-matters";
 import colors from "../theme/colors";
+import { useNavigation } from "@react-navigation/native";
 
 const MovieCard = ({ movie }: { movie: OmdbSearchItem }) => {
+  const navigator = useNavigation<any>();
   return (
-    <Pressable style={styles.movieCard}>
+    <Pressable
+      onPress={() =>
+        navigator.navigate("DetailsScreen", { imdbID: movie.imdbID })
+      }
+      style={styles.movieCard}
+    >
       <View style={styles.movieCardDetail}>
         <Image source={{ uri: movie.Poster }} style={styles.movieCardImage} />
         <View style={styles.movieTitles}>

@@ -1,10 +1,10 @@
 import { NavigationContainer } from "@react-navigation/native";
-import MyTabs from "./src/navigation/BottomTabs";
 import { StatusBar } from "expo-status-bar";
+import MainStackNavigation from "./src/navigation/MainStackNavigation";
 export default function App() {
   return (
     <NavigationContainer>
-      <MyTabs />
+      <MainStackNavigation />
       <StatusBar style="light" />
     </NavigationContainer>
   );
